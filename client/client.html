@@ -5,7 +5,75 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
+  const handleResponse = (response) => {
+      response.text().then((resText) => {
 
+        let h1;
+        let p;
+
+        const content = document.querySelector('#content');
+        const page = document.querySelector('#page');
+        if (document.body.contains(document.querySelector("#statusTitle"))) {
+          h1 = document.querySelector('#statusTitle');
+          p = document.querySelector('#statusMessage');
+        } else {
+          h1 = document.createElement('h1');
+          h1.setAttribute("id", "statusTitle");
+          p = document.createElement('p');
+          p.setAttribute("id", "statusMessage");
+        }
+
+        debugger;
+        
+          //Parse the json back into a javascript object, and display the data.
+          const parsedResponse = JSON.parse(resText);
+          console.log(parsedResponse);
+          if (page.selectedOptions[0].outerText === "Not Found") {
+            h1.textContent = `Resource Not Found`;
+          } else {
+            h1.textContent = `${page.selectedOptions[0].outerText}`;
+          }
+          p.textContent = `Message: ${parsedResponse.message}`;
+
+        //Add the elements to the screen.
+        content.appendChild(h1);
+        content.appendChild(p);    
+      });
+    };
+
+    const sendFetchRequest = (url, acceptedType) => {
+      const options = {
+        method: 'GET',
+        headers: {'Accept': acceptedType},
+      }
+
+      const fetchPromise = fetch(url, options);
+
+      console.log("sendButton pressed");
+
+      debugger;
+
+      fetchPromise.then((response) => { handleResponse(response) });
+    };
+
+    const init = () => {
+    
+      const getUserButton = document.querySelector("#getUserButton");
+      const addUserButton = document.querySelector("#addUserButton");
+
+      const name = document.querySelector("#nameField").value;
+      const age = document.querySelector("#ageField").value;
+
+      const getUserURL = document.querySelector('#type');
+
+      const sendRequest = () => sendFetchRequest(page.value, type.value);
+
+      sendButton.addEventListener('click', sendRequest);
+
+      debugger;
+    };
+
+    window.onload = init;
   </script>
 </head>
 <body>
@@ -16,7 +84,7 @@
       <input id="nameField" type="text" name="name" />
       <label for="age">Age: </label>
       <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input type="submit" value="Add User" />
+      <input id="addUserButton" type="submit" value="Add User" />
     </form>
     <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
@@ -27,7 +95,7 @@
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>
-      <input type="submit" value="Get User" />
+      <input id="getUserButton" type="submit" value="Get User" />
     </form>
   </section>
   <section id="content">
