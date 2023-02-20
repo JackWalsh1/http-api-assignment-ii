@@ -35,7 +35,12 @@
 
    h1.innerHTML = statusCodes[response.status];
    if (parseResponse) {
-    p.innerHTML = JSON.stringify(parsedResponse.users);
+    // if the message is good (aka is the users obj)
+    p.innerHTML = response.status === 200 
+    // then display that
+    ? JSON.stringify(parsedResponse.users)
+    // otherwise, display the error
+    : `Message: ${JSON.stringify(parsedResponse.message)}`;
    } else {
     p.innerHTML = "";
    }

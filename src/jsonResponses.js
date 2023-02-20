@@ -15,17 +15,16 @@ const respondMeta = (request, response, status) => {
 
 // GET METHODS
 const getUsers = (request, response) => {
-
-  console.log("in getUsers");
+  console.log('in getUsers');
 
   const responseJSON = {
     users,
-  }
+  };
 
   return respond(request, response, 200, responseJSON);
 };
 
-const notReal = () => {
+const notReal = (request, response) => {
   const responseJSON = {
     message: 'The page you are looking for was not found.',
     id: 'notFound',

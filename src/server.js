@@ -35,9 +35,9 @@ const onRequest = (request, response) => {
     return routes.HEAD.notFound(request, response);
   }
 
-    // if path exists
+  // if path exists
   if (routes[request.method][parsedUrl.pathname]) {
-    console.log("found path uwu");
+    console.log('found path uwu');
     // go to there
     return routes[request.method][parsedUrl.pathname](request, response);
   }
