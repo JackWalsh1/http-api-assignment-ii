@@ -5,70 +5,160 @@
   <link rel="stylesheet" type="text/css" href="/style.css">
   
   <script>
-  const handleResponse = (response) => {
-      response.text().then((resText) => {
+  const handleGetResponse = async (response, parseResponse) => {
 
-        let h1;
-        let p;
+    // get json back
+    const parsedResponse = await response.json();
+    let h1;
+    let p;
 
-        const content = document.querySelector('#content');
-        const page = document.querySelector('#page');
-        if (document.body.contains(document.querySelector("#statusTitle"))) {
-          h1 = document.querySelector('#statusTitle');
-          p = document.querySelector('#statusMessage');
-        } else {
-          h1 = document.createElement('h1');
-          h1.setAttribute("id", "statusTitle");
-          p = document.createElement('p');
-          p.setAttribute("id", "statusMessage");
-        }
+    console.log(parsedResponse);
 
-        debugger;
-        
-          //Parse the json back into a javascript object, and display the data.
-          const parsedResponse = JSON.parse(resText);
-          console.log(parsedResponse);
-          if (page.selectedOptions[0].outerText === "Not Found") {
-            h1.textContent = `Resource Not Found`;
-          } else {
-            h1.textContent = `${page.selectedOptions[0].outerText}`;
-          }
-          p.textContent = `Message: ${parsedResponse.message}`;
+    // get content and then create h1 / p if needed - otherwise, just get them
+    const content = document.querySelector('#content');
+    if (document.body.contains(document.querySelector("#statusTitle"))) {
+      h1 = document.querySelector('#statusTitle');
+      p = document.querySelector('#statusMessage');
+    } else {
+      h1 = document.createElement('h1');
+      h1.setAttribute("id", "statusTitle");
+      p = document.createElement('p');
+      p.setAttribute("id", "statusMessage");
+    }
 
-        //Add the elements to the screen.
-        content.appendChild(h1);
-        content.appendChild(p);    
-      });
+    debugger;
+
+    const statusCodes = {
+      200: `<b>Success</b>`,
+      404: `<b>Not Found</b>`
+   };
+
+   h1.innerHTML = statusCodes[response.status];
+   if (parseResponse) {
+    p.innerHTML = JSON.stringify(parsedResponse.users);
+   } else {
+    p.innerHTML = "";
+   }
+
+  //Add the elements to the screen.
+  content.appendChild(h1);
+  content.appendChild(p);    
+  };
+
+    const handlePostResponse = async (response) => {      
+    
+    let resText;
+    let h1;
+    let p;
+
+
+    const content = document.querySelector('#content');
+
+    if (document.body.contains(document.querySelector("#statusTitle"))) {
+      h1 = document.querySelector('#statusTitle');
+      p = document.querySelector('#statusMessage');
+    } else {
+      h1 = document.createElement('h1');
+      h1.setAttribute("id", "statusTitle");
+      p = document.createElement('p');
+      p.setAttribute("id", "statusMessage");
+    }
+
+    debugger;
+
+    const statusCodes = {
+      200: `<b>Success</b>`,
+      404: `<b>Not Found</b>`
+   };
+
+    h1.innerHTML = statusCodes[response.headers.status];
+    
+      //Parse the json back into a javascript object, and display the data.
+      const parsedResponse = JSON.parse(resText);
+      console.log(parsedResponse);
+      if (page.selectedOptions[0].outerText === "Not Found") {
+        h1.textContent = `Resource Not Found`;
+      } else {
+        h1.textContent = `${page.selectedOptions[0].outerText}`;
+      }
+      p.textContent = `Message: ${parsedResponse.message}`;
+
+    //Add the elements to the screen.
+    content.appendChild(h1);
+    content.appendChild(p);    
     };
 
-    const sendFetchRequest = (url, acceptedType) => {
+    const sendGetRequest = async (getUserForm) => {
+
+      // get url / method from form, as it can change
+      const url = getUserForm.querySelector('#urlField');
+      const method = getUserForm.querySelector('#methodSelect');
+
+      // build response for get OR head using url / method consts
+      let response = await fetch (url.value, {
+        method: method.value,
+        headers: {
+          'Accept': 'application/json'
+        },
+      });
+
+      // get info for debugging
+      console.log("getUsersButton pressed");
+      debugger;
+
+      // handle the response
+      handleGetResponse(response, method.value === 'get');
+    };
+
+    const sendPost = async (addUserForm) => {
+
+      const action = addUserForm.getAttribute('action');
+      const method = addUserForm.getAttribute('method');
+
+      const name = nameForm.querySelector('#nameField');
+      const age = nameForm.querySelector('#ageField');
+
+      const formData = `name=${name.value}&age=${age.value}`; 
+
       const options = {
-        method: 'GET',
-        headers: {'Accept': acceptedType},
-      }
+        method: method,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        },
+        body: formData,
+      };
 
-      const fetchPromise = fetch(url, options);
+      let response = await fetch (action, options);
 
-      console.log("sendButton pressed");
+      console.log("addUsersButton pressed");
 
       debugger;
 
-      fetchPromise.then((response) => { handleResponse(response) });
+      handlePostResponse(response);
     };
 
     const init = () => {
-    
-      const getUserButton = document.querySelector("#getUserButton");
-      const addUserButton = document.querySelector("#addUserButton");
+      // get forms
+      const getUserForm = document.querySelector('#userForm');
+      const addUserForm = document.querySelector('#nameForm');
 
-      const name = document.querySelector("#nameField").value;
-      const age = document.querySelector("#ageField").value;
+      // create functions to override initial form functions
+      const getUsers = (e) => {
+        e.preventDefault();
+        sendGetRequest(getUserForm);
+        return false;
+      };
 
-      const getUserURL = document.querySelector('#type');
+      const addUsers = (e) => {
+        e.preventDefault();
+        sendPost(addUserForm);
+        return false;
+      };
 
-      const sendRequest = () => sendFetchRequest(page.value, type.value);
-
-      sendButton.addEventListener('click', sendRequest);
+      // attach evt listeners to forms
+      getUserForm.addEventListener('submit', getUsers);
+      addUserForm.addEventListener('submit', addUsers);
 
       debugger;
     };
@@ -84,7 +174,7 @@
       <input id="nameField" type="text" name="name" />
       <label for="age">Age: </label>
       <input id="ageField" type="number" name="age" min="0" max="100" step="1"/>
-      <input id="addUserButton" type="submit" value="Add User" />
+      <input type="submit" value="Add User" />
     </form>
     <form id="userForm" action="/getUsers" method="get">
       <select id='urlField'>
@@ -95,7 +185,7 @@
         <option value="get">GET</option>
         <option value="head">HEAD</option>
       </select>
-      <input id="getUserButton" type="submit" value="Get User" />
+      <input type="submit" value="Get User" />
     </form>
   </section>
   <section id="content">
