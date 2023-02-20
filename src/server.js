@@ -68,7 +68,8 @@ const onRequest = (request, response) => {
     // special parse body for post
     if (request.method === 'POST') {
       console.log(request);
-      parseBody(request, response, routes[request.method][parsedUrl.pathname]);
+      parseBody(request, response, jsonHandler.addUser);
+      return routes[request.method][parsedUrl.pathname];
     }
 
     // get or head -> go there

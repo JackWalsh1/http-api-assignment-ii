@@ -27,14 +27,14 @@
 
     const statusCodes = {
       200: `<b>Success</b>`,
-      201: `<b>Success</b>`,
-      204: `<b>Created</b>`,
+      201: `<b>Created</b>`,
+      204: `<b>Updated (No Content)</b>`,
       400: `<b>Bad Request</b>`,
       404: `<b>Not Found</b>`
    };
 
    h1.innerHTML = statusCodes[response.status];
-   if (parseResponse) {
+   if (parseResponse && response.status !== 204) {
     const parsedResponse = await response.json();
     // if the message is good (aka is the users obj)
     p.innerHTML = response.status === 200 
