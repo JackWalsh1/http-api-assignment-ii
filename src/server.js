@@ -20,8 +20,34 @@ const routes = {
     notFound: jsonHandler.notFoundMeta,
   },
   POST: {
-    '/addUser': jsonHandler.addUsers,
+    '/addUser': jsonHandler.addUser,
+    notFound: jsonHandler.notFound,
   },
+};
+
+const parseBody = (request, response, handler) => {
+  const body = [];
+
+  console.log('chunks coming');
+
+  request.on('error', (err) => {
+    console.dir(err);
+    response.statusCode = 400;
+    response.end();
+  });
+
+  request.on('data', (chunk) => {
+    console.log(chunk);
+    body.push(chunk);
+  });
+
+  console.log(body);
+
+  request.on('end', () => {
+    const bodyString = Buffer.concat(body).toString();
+    const bodyParams = query.parse(bodyString);
+    handler(request, response, bodyParams);
+  });
 };
 
 const onRequest = (request, response) => {
@@ -37,8 +63,15 @@ const onRequest = (request, response) => {
 
   // if path exists
   if (routes[request.method][parsedUrl.pathname]) {
-    console.log('found path uwu');
-    // go to there
+    console.log([request.method]);
+
+    // special parse body for post
+    if (request.method === 'POST') {
+      console.log(request);
+      parseBody(request, response, routes[request.method][parsedUrl.pathname]);
+    }
+
+    // get or head -> go there
     return routes[request.method][parsedUrl.pathname](request, response);
   }
 
