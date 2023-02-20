@@ -23,7 +23,7 @@
       p.setAttribute("id", "statusMessage");
     }
 
-    debugger;
+    
 
     const statusCodes = {
       200: `<b>Success</b>`,
@@ -64,11 +64,7 @@
           'Accept': 'application/json'
         },
       });
-
-      // get info for debugging
-      console.log("getUsersButton pressed");
-      debugger;
-
+    
       // handle the response
       handleResponse(response, method.value === 'get');
     };
@@ -83,8 +79,6 @@
 
       const formData = `name=${name.value}&age=${age.value}`; 
 
-      console.log(formData);
-
       let response = await fetch(action, {
         method: method,
         headers: {
@@ -93,8 +87,6 @@
         },
         body: formData,
       });
-
-      console.log("addUsersButton pressed");
 
       // always print a response for post
       handleResponse(response, true);
@@ -122,7 +114,7 @@
       getUserForm.addEventListener('submit', getUsers);
       addUserForm.addEventListener('submit', addUsers);
 
-      debugger;
+      
     };
 
     window.onload = init;

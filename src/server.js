@@ -28,8 +28,6 @@ const routes = {
 const parseBody = (request, response, handler) => {
   const body = [];
 
-  console.log('chunks coming');
-
   request.on('error', (err) => {
     console.dir(err);
     response.statusCode = 400;
@@ -41,8 +39,6 @@ const parseBody = (request, response, handler) => {
     body.push(chunk);
   });
 
-  console.log(body);
-
   request.on('end', () => {
     const bodyString = Buffer.concat(body).toString();
     const bodyParams = query.parse(bodyString);
@@ -53,8 +49,6 @@ const parseBody = (request, response, handler) => {
 const onRequest = (request, response) => {
   const parsedUrl = url.parse(request.url);
 
-  console.log(routes[request.method][parsedUrl.pathname]);
-
   // if request method does not exist
   if (!routes[request.method]) {
     // notFound head
@@ -63,11 +57,8 @@ const onRequest = (request, response) => {
 
   // if path exists
   if (routes[request.method][parsedUrl.pathname]) {
-    console.log([request.method]);
-
     // special parse body for post
     if (request.method === 'POST') {
-      console.log(request);
       parseBody(request, response, jsonHandler.addUser);
       return routes[request.method][parsedUrl.pathname];
     }
